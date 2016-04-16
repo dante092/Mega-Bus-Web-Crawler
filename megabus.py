@@ -1,4 +1,3 @@
-
 """ Create a program that texts or emails me everytime if finds a cheap ticket in megabus.com
 """
 import re
@@ -7,9 +6,7 @@ import sys
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 
-#todo: Create URL for trip
-
-
+#Todo: Use Json to store city codes. 
 def generate_city_code(citi):
     citi = citi.upper()
     citi_codes = {
@@ -76,18 +73,24 @@ def generate_date(date):
     date = month + '%2f' + day + '%2f' + year
     return date
 
-    megabus_base_url = '&transportType=0&concessionCount=0&nusCount=0&outboundWheelchairSeated=0&outboundOtherDisabilityCount=0&inboundWheelchairSeated=0&inboundOtherDisabilityCount=0&outboundPcaCount=0&inboundPcaCount=0&pr
+
 def params(origin, destination, leaving, comingback, passengers = '2' ):
+    """ Formats a Megabus URL with the destination information."""
     base = 'http://us.megabus.com/JourneyResults.aspx?'
     origincode = 'originCode=' + generate_city_code(origin)
     destinationcode = '&destinationCode=' + generate_city_code(destination)
     departuredate = '&outboundDepartureDate=' + generate_date(leaving)
-    coming_back ='&inboundDepartureDate=' + generate_date(coming_back)
+    coming_back ='&inboundDepartureDate=' + generate_date(comingback)
     passengers = '&passengerCount='+passengers
+    rest_of_url = '&transportType=0&concessionCount=0&nusCount=0&outboundWheelchairSeated=0&outboundOtherDisabilityCount=0&inboundWheelchairSeated=0&inboundOtherDisabilityCount=0&outboundPcaCount=0&inboundPcaCount=0&promotionCode=&withReturn=1'
+    url = base + origincode + destinationcode + departuredate +coming_back + passengers + rest_of_url
+    return url
 
 
-print(search_trip('boston, mA','4/16/2016', '2')rom url
+
+params('New York, ny', 'Boston, MA', '4/16/2016', '4/17/2016')
 #todo: Sort out prices,and trip times
 #todo: Compare prices to a set defenition of cheap
 #todo: Record prices into a database for future comparison.
-#the price is rigth, shoot me a text with the info
+#todo: the price is rigth, shoot me a text with the info
+#todo: the price is rigth, shoot me a text with the info
