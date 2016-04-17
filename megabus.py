@@ -86,11 +86,44 @@ def params(origin, destination, leaving, comingback, passengers = '2' ):
     url = base + origincode + destinationcode + departuredate +coming_back + passengers + rest_of_url
     return url
 
+def download_data(url):
+    connect = urlopen(url)
+    soup = BeautifulSoup(connect, 'html.parser')
+    return soup
+
+def params_message(soup):
+    soup = soup
+    message = []
+    
+    for word in soup.findAll('div', {"class":"search_params"}):
+        message.append(word.getText())
+	
+    for word in message:
+        word = word.replace('\t','')
+        word = word.replace('\n', '')
+        print(word)
+        
+def download_trips(url):
+    html = download_data(url)
+    temp = []
+    trip = [] 
+    for i in html.findAll('ul', id = 'JourneyResylts_OutboundList_GridViewResults_ctl00_row_item'):
+        temp.append(i.getText())
+    for word in temp:
+        word = word.replace('\t','')
+        word = word.replace('\n', '')
+        word = word.replace('\r', '')
+        trip.append(word)
+        
+    return trip
+    
+    
 
 
-params('New York, ny', 'Boston, MA', '4/16/2016', '4/17/2016')
+
 #todo: Sort out prices,and trip times
 #todo: Compare prices to a set defenition of cheap
 #todo: Record prices into a database for future comparison.
 #todo: the price is rigth, shoot me a text with the info
 #todo: the price is rigth, shoot me a text with the info
+
