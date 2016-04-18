@@ -4,6 +4,7 @@ import re
 import os
 import sys
 from urllib.request import urlopen
+import urllib.request 
 from bs4 import BeautifulSoup
 
 #Todo: Use Json to store city codes. 
@@ -87,7 +88,10 @@ def params(origin, destination, leaving, comingback, passengers = '2' ):
     return url
 
 def download_data(url):
-    connect = urlopen(url)
+    headers = {}
+    headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'
+    request  = urllib.request.Request(url, headers = headers)
+    connect = urlopen(request)
     soup = BeautifulSoup(connect, 'html.parser')
     return soup
 
