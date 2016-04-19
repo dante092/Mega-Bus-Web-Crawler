@@ -4,11 +4,54 @@ import re
 import os
 import sys
 from urllib.request import urlopen
+from  urllib.error import URLError
 import urllib.request 
 from bs4 import BeautifulSoup
 
-#Todo: Use Json to store city codes. 
+#Todo: Use Json to store city codes.
+
+class Trip():
+    """ Models a megabus trip.
+    """
+    def __init__(self, data):
+        self.data = data
+
+    def price(self):
+        """
+        Gets the price of the current trip
+        :return: price = int
+        """
+        data = self.data
+        price_regex = re.compile(r"\$\d\d")
+        matches = price_regex.findall(data)
+        price = matches[0]
+        print(price)
+        return price
+
+    def departure_time(self):
+        data = self.data
+        departure_regex = re.compile(r"^(Departs\d+:\d\d)")
+        matches = departure_regex.findall(data)
+        departure_time = matches[0]
+        print(departure_time)
+
+    def arrival_time(self):
+        data = self.data
+        arrival_regex = re.compile(r"(Arrives\d+:\d\d)")
+        matches = arrival_regex.findall(data)
+        arrival_time = matches[0]
+        print(arrival_time)
+
+    def build_trip(self):
+        self.price()
+        self.arrival_time()
+        self.departure_time()
+
+
+
+
 def generate_city_code(citi):
+    citi = citi.strip()
     citi = citi.upper()
     citi_codes = {
         'ALBANY, NY' : '89',
@@ -74,6 +117,15 @@ def generate_date(date):
     date = month + '%2f' + day + '%2f' + year
     return date
 
+def get_params():
+    origin = input('From: ')
+    destination = input('Destination: ')
+    leaving = input('Date of Departure: ')
+    arrival = input('Date of Arrival: ')
+    url = megabus.params(origin, destination, leaving, arrival)
+    return url
+
+
 
 def params(origin, destination, leaving, comingback, passengers = '2' ):
     """ Formats a Megabus URL with the destination information."""
@@ -90,8 +142,12 @@ def params(origin, destination, leaving, comingback, passengers = '2' ):
 def download_data(url):
     headers = {}
     headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'
-    request  = urllib.request.Request(url, headers = headers)
-    connect = urlopen(request)
+    request  = urllib.request.Request(url, headers=headers)
+    try:
+        connect = urlopen(request)
+    except URLError as e:
+        print(e)
+
     soup = BeautifulSoup(connect, 'html.parser')
     return soup
 
@@ -111,7 +167,7 @@ def download_trips(url):
     html = download_data(url)
     temp = []
     trip = [] 
-    for i in html.findAll('ul', id = 'JourneyResylts_OutboundList_GridViewResults_ctl00_row_item'):
+    for i in html.findAll('ul', id = 'JourneyResylts_OutboundList_GridViewResults_ctl03_row_item'):
         temp.append(i.getText())
     for word in temp:
         word = word.replace('\t','')
