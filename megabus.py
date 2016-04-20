@@ -6,36 +6,39 @@ from urllib.request import urlopen
 from  urllib.error import URLError
 import urllib.request 
 from bs4 import BeautifulSoup
+import random
 
 #Todo: Use Json to store city codes.
 
 class Trip():
-    """ Models a megabus trip.
-    """
+    """ Models a megabus trip."""
+    
     def __init__(self, data, number, prices=[]):
+        """ Initializes basic trip Data."""
         self.data = data
         self.trip_number = number
         self.prices = prices
-
+        #notice that if not provided prices default to an emtpy list. 
 
     def price(self):
         """
-        Gets the price of the current trip
+        Gets & prints the price of the current trip
         :return: price = int
         """
         prices = self.prices
         data = self.data
-        price_regex = re.compile(r"\$\d\d")
+        price_regex = re.compile(r"\$\d\d") # Dollard Sign followed by two digits.
         matches = price_regex.findall(data)
         price = matches[0]
         print('Price: ', price)
-        price = price.replace('$', '')
-        prices.append(int(price))
-        return price
+        price = price.replace('$', '')#Cleans up data, so it can be converted to int easier later.
+        prices.append(int(price))# if list is not provided when initializing, the list will not be returned. 
+        return int(price) # only price gets returned, to get a list of prices, pass a list as a parameter. 
 
     def departure_time(self):
+        """Gets & Prints the departure time, :Returns: departure_time = str """
         data = self.data
-        departure_regex = re.compile(r"^(Departs\d+:\d\d...)")
+        departure_regex = re.compile(r"^(Departs\d+:\d\d...)")#DepartsDigitormore, :, two more digits
         matches = departure_regex.findall(data)
         departure_time = matches[0]
         departure_time = departure_time.replace('Departs', '')
@@ -43,6 +46,7 @@ class Trip():
         return departure_time
 
     def arrival_time(self):
+        """Gets & Prints the arrival time, :Returns: arrival_time = str """
         data = self.data
         arrival_regex = re.compile(r"(Arrives\d+:\d\d...)")
         matches = arrival_regex.findall(data)
@@ -51,12 +55,38 @@ class Trip():
         print('Arriving: ', arrival_time)
         return arrival_time
 
+    def random_id(self):
+        """ Generates four random numbers"""
+        randomID = ''
+
+        for number in range(0, 7):
+            randomnumber = str(random.randint(0,9))
+            randomID = randomID + randomnumber
+
+        print(randomID)
+        return randomID
+
+
+
+    def trip_id(self):
+        """ Creates an unique Identifier for  each trip"""
+        price = str(self.price())
+        random_id = self.random_id()
+
+
     def build_trip(self):
+        """ Displays all the trips attributes. """
         print('\n')
         print(' Trip {0} '.center(50, '=').format(self.trip_number))
         self.price()
         self.departure_time()
         self.arrival_time()
+
+class Price(Trip):
+    # Needs to inherit price
+    #allows for price_matching etc.
+    price = self.price
+
 
 def generate_city_code(citi):
     """
@@ -132,6 +162,7 @@ def generate_date(date):
     return date
 
 def get_params():
+    """ Search parameters tp be used. :Returns: URL """
     origin = input('From: ')
     destination = input('Destination: ')
     leaving = input('Date of Departure: ')
@@ -152,39 +183,44 @@ def format(origin, destination, leaving, comingback, passengers = '2' ):
     return url
 
 def download_data(url):
+    """ Dowloads data from Megabus.com """
     headers = {}
     headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'
     request  = urllib.request.Request(url, headers=headers)
-    while True:
+    while True: # loop to avoid program stopping after an URLError. 
         try:
             connect = urlopen(request)
             break
         except URLError as e:
-            print('Something is wrong', e)
+            print('Something is wrong', e, ' Attemting to fix it.\n')
             continue
 
     soup = BeautifulSoup(connect, 'html.parser')
     return soup
 
 def params_message(soup):
+    """ prints a consise message of the search being done """ 
     soup = soup
     message = []
-    
+    # The message is stored under tag div, in class "search_params"
     for word in soup.findAll('div', {"class":"search_params"}):
         message.append(word.getText())
 	
     for word in message:
+        # Removes tabs and space.
         word = word.replace('\t','')
         word = word.replace('\n', '')
         print(word)
 
 def format_trip(number):
+    """formats the ID to be search with the numerical id(number)"""
     number = str(number)
     id ='JourneyResylts_OutboundList_GridViewResults_ctl09_row_item'
     id = id.replace('9', number)
     return id
 
 def download_trips(url, id):
+    """Returns a string with the trip information """
     identification = format_trip(id)
     html = download_data(url)
     temp = []

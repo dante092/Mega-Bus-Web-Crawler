@@ -1,8 +1,7 @@
 import shelve
 import time
 import megabus
-morning = shelve.open('morning_prices')
-afternoon = shelve.open('Afternoon_prices')
+
 
 print('MEGABUS CRAWLER'.center(70, '='))
 url = megabus.format('New York, ny', 'Boston, MA', '4/20/2016', '4/20/2016')
@@ -12,17 +11,20 @@ time.sleep(3)
 html = megabus.download_data(url)
 
 print('|SEARCHING FOR TRIP TO|')
+# Displays a summary of the trip that is being searched
 megabus.params_message(html)
 
-id = 0
+id = 0 # numerical number used to display current trip. 
 while True:
+    # Downloads HTML using URL, gets all availible trips.
     trip = megabus.download_trips(url, id)
-    if trip == []:
+    if trip == []: # An empty list means we reached the end of the road. 
         print('No more trips for the day.')
         break
-    megabus.format_trip('5')
-    for row in trip:
-        data = megabus.Trip(row, id)
+    # Selects the Trip based on ID provided before in download_trips, ID is
+    # passed once more but only to be able to print the currebt ID number. 
+    for data_row in trip:
+        data = megabus.Trip(data_row, id)
         data.build_trip()
     id += 1
 
