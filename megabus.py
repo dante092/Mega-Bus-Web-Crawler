@@ -20,7 +20,7 @@ class Trip():
         self.prices = prices
         #notice that if not provided prices default to an emtpy list. 
 
-    def price(self):
+    def price(self, verbose = True):
         """
         Gets & prints the price of the current trip
         :return: price = int
@@ -30,7 +30,8 @@ class Trip():
         price_regex = re.compile(r"\$\d\d") # Dollard Sign followed by two digits.
         matches = price_regex.findall(data)
         price = matches[0]
-        print('Price: ', price)
+        if verbose == True:
+            print('Price: ', price)
         price = price.replace('$', '')#Cleans up data, so it can be converted to int easier later.
         prices.append(int(price))# if list is not provided when initializing, the list will not be returned. 
         return int(price) # only price gets returned, to get a list of prices, pass a list as a parameter. 
@@ -63,30 +64,41 @@ class Trip():
             randomnumber = str(random.randint(0,9))
             randomID = randomID + randomnumber
 
-        print(randomID)
         return randomID
-
-
 
     def trip_id(self):
         """ Creates an unique Identifier for  each trip"""
-        price = str(self.price())
+        price = str(self.price(verbose = False))
         random_id = self.random_id()
+        trip_id = random_id + price
+        print('Trip ID: ', trip_id)
+        return trip_id
 
+    def trip_ai(self):
+        m_prices = []
+        t_prices = []
+        w_prices = []
+        th_prices = []
+        f_prices = []
+
+
+        trip_day = ['Monday','Wednesday': w_prices]
 
     def build_trip(self):
         """ Displays all the trips attributes. """
         print('\n')
         print(' Trip {0} '.center(50, '=').format(self.trip_number))
+        self.trip_id()
         self.price()
         self.departure_time()
         self.arrival_time()
 
-class Price(Trip):
-    # Needs to inherit price
-    #allows for price_matching etc.
-    price = self.price
 
+class Price(Trip):
+    """ """
+    def __init__(self):
+        Trip.__init__()
+        self.price = self.price
 
 def generate_city_code(citi):
     """
@@ -203,6 +215,7 @@ def params_message(soup):
     soup = soup
     message = []
     # The message is stored under tag div, in class "search_params"
+    print('|SEARCHING FOR TRIP TO|')
     for word in soup.findAll('div', {"class":"search_params"}):
         message.append(word.getText())
 	
