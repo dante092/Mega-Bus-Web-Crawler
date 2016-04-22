@@ -81,13 +81,10 @@ class Trip():
         th_prices = []
         f_prices = []
 
-
-        trip_day = ['Monday','Wednesday': w_prices]
-
     def build_trip(self):
         """ Displays all the trips attributes. """
         print('\n')
-        print(' Trip {0} '.center(50, '=').format(self.trip_number))
+        print(' Outbound Trip {0} '.center(50, '=').format(self.trip_number + 1 ))
         self.trip_id()
         self.price()
         self.departure_time()
@@ -192,6 +189,7 @@ def format(origin, destination, leaving, comingback, passengers = '2' ):
     passengers = '&passengerCount='+passengers
     rest_of_url = '&transportType=0&concessionCount=0&nusCount=0&outboundWheelchairSeated=0&outboundOtherDisabilityCount=0&inboundWheelchairSeated=0&inboundOtherDisabilityCount=0&outboundPcaCount=0&inboundPcaCount=0&promotionCode=&withReturn=1'
     url = base + origincode + destinationcode + departuredate +coming_back + passengers + rest_of_url
+    print(url)
     return url
 
 def download_data(url):
@@ -225,16 +223,23 @@ def params_message(soup):
         word = word.replace('\n', '')
         print(word)
 
-def format_trip(number):
+def outbound_trip(number):
     """formats the ID to be search with the numerical id(number)"""
-    number = str(number)
-    id ='JourneyResylts_OutboundList_GridViewResults_ctl09_row_item'
-    id = id.replace('9', number)
-    return id
+    if number > 9:
+        number = str(number)
+        id ='JourneyResylts_OutboundList_GridViewResults_ctl09_row_item'
+        id = id.replace('09', number)
+        return id
+    else:
+        number = str(number)
+        id ='JourneyResylts_OutboundList_GridViewResults_ctl09_row_item'
+        id = id.replace('9', number)
+        return id
 
-def download_trips(url, id):
+
+def download_outbound_trips(url, id):
     """Returns a string with the trip information """
-    identification = format_trip(id)
+    identification = outbound_trip(id)
     html = download_data(url)
     temp = []
     trip = [] 
@@ -247,8 +252,39 @@ def download_trips(url, id):
         trip.append(word)
         
     return trip
-    
-    
+# _________________________________________________________________
+def inbound_trip(number):
+    """formats the ID to be search with the numerical id(number)"""
+    if number > 9:
+        number = str(number)
+        id ='JourneyResylts_InboundList_GridViewResults_ctl07_row_item'
+        id = id.replace('07', number)
+        return id
+    else:
+        number = str(number)
+        id ='JourneyResylts_InboundList_GridViewResults_ctl07_row_item'
+        id = id.replace('7', number)
+        return id
+
+
+def download_inbound_trips(url, id):
+    """Returns a string with the trip information """
+    identification = inbound_trip(id)
+    html = download_data(url)
+    temp = []
+    trip = []
+    for trip_data in html.findAll('ul', id = identification):
+        temp.append(trip_data.getText())
+    for word in temp:
+        word = word.replace('\t','')
+        word = word.replace('\n', '')
+        word = word.replace('\r', '')
+        trip.append(word)
+
+    return trip
+
+
+
 
 
 
