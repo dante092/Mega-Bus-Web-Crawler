@@ -1,43 +1,79 @@
-import shelve
-import time
 import megabus
-from collections import deque
+import megabus_date
+
+
+# outbound prices
+m_prices = []
+t_prices = []
+w_prices = []
+th_prices = []
+f_prices = []
+s_prices = []
+su_prices = []
+
+# inbound price list
+im_prices = []
+it_prices = []
+iw_prices = []
+ith_prices = []
+if_prices = []
+is_prices = []
+isu_prices = []
+# Todo: Use Json to store city codes.
 
 print('MEGABUS CRAWLER'.center(70, '='))
 
-url = megabus.format('New York, ny', 'Boston, MA', '4/22/2016', '4/22/2016')
-#url = megabus.get_params()
-time.sleep(3)
-html = megabus.download_data(url)
+#origin = input('From: ')
+#destination = input('Destination: ')
+
+print('\nENTER Start Crawling Date')
+
+year = int(input('Year: '))
+month = int(input('Month: '))
+day = int(input('Day:'))
+
+crawling = megabus_date.Date(year, month, day)
+crawling_date = crawling.format_date()
+crawling_day = crawling.day_of_the_week()
+
+url = megabus.format('New York, ny', 'Boston, MA', crawling_date)
 
 
 # Displays a summary of the trip that is being searched
-megabus.params_message(html)
-id = 0 # numerical number used to display current trip.
+#2megabus.params_message(html)
 
-while True:
-    # Downloads HTML using URL, gets all availible trips.
-    outbound_trip = megabus.download_outbound_trips(url, id)
-    if outbound_trip == []: # An empty list means we reached the end of the road.
-        print('\nNo more trips for the day.')
+# collect data
+for number in range(0, 1):
+    if crawling_date == -1:
         break
-    # Selects the Trip based on ID provided before in download_trips, ID is
-    # passed once more but only to be able to print the currebt ID number. 
-    for data_row in outbound_trip:
-        data = megabus.Trip(data_row, id)
-        data.build_trip()
-    id += 1
 
-id = 0
-while True:
-    # Downloads HTML using URL, gets all availible trips.
-    inbound_trip = megabus.download_inbound_trips(url, id)
-    if inbound_trip == []: # An empty list means we reached the end of the road.
-        print('\nNo more trips for the day.')
-        break
-    # Selects the Trip based on ID provided before in download_trips, ID is
-    # passed once more but only to be able to print the currebt ID number.
-    for data_row in inbound_trip:
-        data = megabus.Trip(data_row, id)
-        data.build_trip()
-    id += 1
+    outbound = megabus.start_trips(url, 'outbound', crawling_day, m_prices, t_prices,w_prices,th_prices,f_prices,s_prices,
+                               su_prices, im_prices, it_prices,iw_prices,ith_prices,if_prices,is_prices,isu_prices)
+
+    inbound =  megabus.start_trips(url,'inbound', crawling_day, m_prices, t_prices,w_prices,th_prices,f_prices,s_prices,
+                               su_prices, im_prices, it_prices,iw_prices,ith_prices,if_prices,is_prices,isu_prices)
+    trip_day = day + 1
+    crawling = megabus_date.Date(year, month, trip_day)
+    crawling_date = crawling.format_date()
+    crawling_day = crawling.day_of_the_week()
+
+# compare data
+crawling = megabus_date.Date(year, month, day)
+crawling_date = crawling.format_date()
+crawling_day = crawling.day_of_the_week()
+
+
+for number in range(0, 1):
+    megabus.compare_trip_prices(url, 'outbound', crawling_day, m_prices, t_prices,w_prices,th_prices,f_prices,s_prices,
+                                   su_prices, im_prices, it_prices,iw_prices,ith_prices,if_prices,is_prices,isu_prices)
+
+    megabus.compare_trip_prices(url,'inbound', crawling_day, m_prices, t_prices,w_prices,th_prices,f_prices,s_prices,
+                                   su_prices, im_prices, it_prices,iw_prices,ith_prices,if_prices,is_prices,isu_prices)
+    day = day + 1
+    crawling = megabus_date.Date(year, month, day)
+    crawling_date = crawling.format_date()
+    crawling_day = crawling.day_of_the_week()
+
+
+
+

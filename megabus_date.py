@@ -1,0 +1,34 @@
+import datetime
+
+class Date():
+    def __init__(self, year, month, day):
+        self.year = year
+        self.month = month
+        self.day = day
+
+    def format_date(self):
+        try:
+            date = datetime.datetime(self.year,self.month,self.day)
+            formatted_Date = date.strftime('%m/%d/%y')
+            return formatted_Date
+
+        except ValueError:
+            print('Date currently not availible')
+            return -1
+
+    def increment_day(self):
+        self.day =self.day + 1
+
+    def day_of_the_week(self):
+        date = datetime.datetime(self.year,self.month,self.day)
+        day = date.strftime('%A')
+        return day
+
+# Tests
+
+#crawling_date = Date(2016, 4, 25)
+
+#crawling_date.increment_day()
+#crawling_date.day_of_the_week()
+#print(crawling_date.format_date())
+
