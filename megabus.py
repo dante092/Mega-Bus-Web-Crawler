@@ -9,6 +9,19 @@ import urllib.request
 from bs4 import BeautifulSoup
 import random
 
+from time import sleep
+import sys
+
+def progress_bar(speed=1.00):
+    for i in range(21):
+        sys.stdout.write('\r')
+        # the exact output you're looking for:
+        sys.stdout.write("[%-20s] %d%%" % ('='*i, 5*i))
+        sys.stdout.flush()
+        sleep(speed)
+
+
+
 class Trip():
     """ Models a megabus trip."""
 
@@ -258,28 +271,61 @@ def download_trips(url, id, mode):
     return trip
 
 
+
 def start_trips(url, mode, crawling_day, m_prices, t_prices,w_prices,th_prices,f_prices,s_prices,
                 su_prices, im_prices, it_prices,iw_prices,ith_prices,if_prices,is_prices,isu_prices):
     """Sorts through each row of data """
-    id = 0  # numerical number used to display current trip.
-    while True:
-        # Downloads HTML using URL, gets all availible trips.
-        megabus_trip = download_trips(url, id, mode)
 
-        if megabus_trip == []:  # An empty list means we reached the end of the road.
-            print('\nNo more trips for the day.')
-            break
+    data_from_trips = load_trips_into_memory(url, mode, crawling_day)
+    read_trips(data_from_trips, mode, crawling_day,m_prices, t_prices,w_prices,th_prices,f_prices,s_prices,
+               su_prices, im_prices, it_prices,iw_prices,ith_prices,if_prices,is_prices,isu_prices )
+
+    #id = 0  # numerical number used to display current trip.
+    #print("\nDownloading {0}'s".format(crawling_day), mode,'Data')
+    #progress_bar(1.00)
+    #while True:
+        # Downloads HTML using URL, gets all availible trips.
+      #  megabus_trip = download_trips(url, id, mode)
+
+       # if megabus_trip == []:  # An empty list means we reached the end of the road.
+        #    break
 
         # Selects the Trip based on ID provided before in download_trips, ID is
         # passed once more but only to be able to print the currebt trip number.
-        for data_row in megabus_trip:
-            data = Trip(data_row, id, mode, crawling_day)
-            data.display_trip()
-            price = data.price(verbose=False)
-            record_price_to_list(mode, crawling_day,price,m_prices, t_prices,w_prices,th_prices,f_prices,s_prices,
-                                 su_prices, im_prices, it_prices,iw_prices,ith_prices,if_prices,is_prices,isu_prices )
-            print(crawling_day)
+        #for data_row in megabus_trip:
+         #   data = Trip(data_row, id, mode, crawling_day)
+          #  price = data.price(verbose=False)
+           # record_price_to_list(mode, crawling_day,price,m_prices, t_prices,w_prices,th_prices,f_prices,s_prices,
+            #                     su_prices, im_prices, it_prices,iw_prices,ith_prices,if_prices,is_prices,isu_prices )
+
+        #id += 1
+
+def load_trips_into_memory(url, mode, crawling_day):
+    data_from_trips = []
+    id = 0  # numerical number used to display current trip.
+    print("\nDownloading {0}'s".format(crawling_day), mode,'Data')
+    progress_bar(0.20)
+
+    while True:
+        # Downloads HTML using URL, gets all availible trips.
+        megabus_trip = download_trips(url, id, mode)
+        if megabus_trip == []:  # An empty list means we reached the end of the road.
+            break
+        data_from_trips.append(megabus_trip)
         id += 1
+    return data_from_trips
+
+def read_trips(data_from_trips, mode, crawling_day,m_prices, t_prices,w_prices,th_prices,f_prices,s_prices,
+               su_prices, im_prices, it_prices,iw_prices,ith_prices,if_prices,is_prices,isu_prices ):
+    id = 0
+    for data_row in data_from_trips:
+        id +=1
+        data = Trip(data_row, id, mode, crawling_day)
+        price = data.price(verbose=False)
+        data.display_trip()
+        record_price_to_list(mode, crawling_day,price,m_prices, t_prices,w_prices,th_prices,f_prices,s_prices,
+                   su_prices, im_prices, it_prices,iw_prices,ith_prices,if_prices,is_prices,isu_prices )
+
 
 
 def record_price_to_list(mode,crawling_day, trip_price, m_prices, t_prices,w_prices,th_prices,f_prices,s_prices,
@@ -300,7 +346,6 @@ def record_price_to_list(mode,crawling_day, trip_price, m_prices, t_prices,w_pri
 
         if day == 'Wednesday':
             w_prices.append(price)
-            print(w_prices)
 
         if day == 'Thursday':
             th_prices.append(price)
@@ -346,7 +391,6 @@ def compare_trip_prices(url, mode, crawling_day, m_prices, t_prices,w_prices,th_
         megabus_trip = download_trips(url, id, mode)
 
         if megabus_trip == []:  # An empty list means we reached the end of the road.
-            print('\nNo more trips for the day.')
             break
 
         # Selects the Trip based on ID provided before in download_trips, ID is
@@ -356,27 +400,22 @@ def compare_trip_prices(url, mode, crawling_day, m_prices, t_prices,w_prices,th_
             price = data.price(verbose=False)
             a_list = get_price_list(mode, crawling_day, m_prices, t_prices,w_prices,th_prices,f_prices,s_prices,
                                     su_prices, im_prices, it_prices,iw_prices,ith_prices,if_prices,is_prices,isu_prices)
-            print(a_list)
+            average = 0
+            for price_in_day in a_list:
+                average += price_in_day
 
+            average = average/len(a_list)
+            print('Trip Price ', price,'Average Price ', average)
 
-            #average = 0
-            #for price_in_day in price_list:
-             #   print(price_in_day)
-              #  average += price_in_day
-
-            #average = average/len(price_list)
-
-            #if price <= int(average):
-            #   print('Recommended Trip')
-            #    data.display_trip()
+            if price <= int(average):
+                print('Recommended Trip')
+                data.display_trip()
         id += 1
 
 def get_price_list(mode, crawling_day, m_prices, t_prices,w_prices,th_prices,f_prices,s_prices,
                    su_prices, im_prices, it_prices,iw_prices,ith_prices,if_prices,is_prices,isu_prices):
     mode = mode
     day = crawling_day.upper()
-    print(mode)
-    print(day)
     if mode == 'outbound':
         if day == 'MONDAY':
             return m_prices

@@ -1,10 +1,11 @@
 import datetime
 
 class Date():
-    def __init__(self, year, month, day):
-        self.year = year
-        self.month = month
-        self.day = day
+    def __init__(self):
+        self.today = datetime.datetime.today()
+        self.year = int(self.today.strftime('%y')) + 2000
+        self.month = int(self.today.strftime('%m'))
+        self.day = int(self.today.strftime('%d'))
 
     def format_date(self):
         try:
