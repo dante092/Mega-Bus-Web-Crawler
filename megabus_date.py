@@ -14,11 +14,17 @@ class Date():
             return formatted_Date
 
         except ValueError:
-            print('Date currently not availible')
+            print('New Month')
             return -1
+
+
 
     def increment_day(self):
         self.day =self.day + 1
+
+    def increment_month(self):
+        self.month = self.month + 1
+        self.day = 1
 
     def day_of_the_week(self):
         date = datetime.datetime(self.year,self.month,self.day)

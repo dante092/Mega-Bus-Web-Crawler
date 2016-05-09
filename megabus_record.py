@@ -17,7 +17,7 @@ def record_price_to_list( mode, crawling_day, trip_price, week_days):
 
 def get_price_list(mode, crawling_day, week_days):
     mode = mode
-    day = crawling_day
+    day = crawling_day.lower()
 
     if mode == 'outbound':
         return week_days[mode][day]
@@ -36,8 +36,6 @@ def record_trips(url, mode,crawling_day, week_days):
     while True:
         #Downloads HTML using URL, gets all availible trips.
         megabus_trip = megabus_request.download_trips(url, id, mode)
-        print('trp', megabus_trip)
-
         if megabus_trip == []:  # An empty list means we reached the end of the road.
             break
 
@@ -46,7 +44,6 @@ def record_trips(url, mode,crawling_day, week_days):
         for data_row in megabus_trip:
             data = megabus_request.Trip(data_row, id, mode, crawling_day)
             price = data.price(verbose=False)
-            print('p',price)
             record_price_to_list(mode, crawling_day, price, week_days)
         id += 1
 
