@@ -1,117 +1,75 @@
-import megabus
+import megabus_request
+import megabus_record
+import megabus_analyze
+import megabus_display
 import megabus_date
 
+#working database of prices.
+week_days = {
+    # outbound prices
+    'outbound': {
+        'monday':[25,23,25],
+        'tuesday':[] ,
+        'wednesday':[],
+        'thursday':[],
+        'friday': [],
+        'saturday':[],
+        'sunday':[],
+    },
+    'inbound':{
+        'imonday' : [],
+        'ituesday' : [],
+        'iwednesday' :[],
+        'ithursday' : [],
+        'ifriday' : [],
+        'isaturday' : [],
+        'isunday' :[],}
+    }
 
-# outbound prices
-m_prices = []
-t_prices = []
-w_prices = []
-th_prices = []
-f_prices = []
-s_prices = []
-su_prices = []
 
-# inbound price list
-im_prices = []
-it_prices = []
-iw_prices = []
-ith_prices = []
-if_prices = []
-is_prices = []
-isu_prices = []
-# Todo: Use Json to store city codes.
-
-#def run_spider():
-print(r"""
-
-_____________________________________
-!\/        !        \/         ./
-!/\        !        |\       ./
-!  \       !       /  \    ./
-!   \______!______|    \ ,/
-!   /\     !    ./\    ,/
-! /   \    !    |  \ ,/
-!/     \___!____|  ,/
-!     / \ _!__ *\,/
-!    !   \ !  \,/
-!    !  | \! ,/
-!----------K/
-!    ! ,!  /|
-!    !/   / |
-!   / \  /  |
-!\./   \/   |
-!/\    /    |
-!  \  /    .o.
-!   \/     :O:    MEGABUS CRAWLER
-!   /       "
-!  /
-! /
-!/
-!
-!
-!""")
-input('$ Press Enter to release Spider...')
-print(r"""
-          |
-          |
-      /   |   \
-     / /  |  \ \
-     \ \_(*)_/ /
-      \_(~:~)_/
-       /-(:)-\
-      / / * \ \
-      \ \   / /
-       \     /
-""")
-print('$ Initializing Price Analysis: ')
-megabus.progress_bar(0.20)
-print('\n')
-
+megabus_display.run_mainSpider()
 #origin = input('From: ')
 #destination = input('Destination: ')
-
 crawling = megabus_date.Date()
-crawling_date = crawling.format_date()
-crawling_day = crawling.day_of_the_week()
+crawling_date, crawling_day = crawling.format_date(), crawling.day_of_the_week()
+url = megabus_request.format('New York, ny', 'Boston, MA', crawling_date)
 
-
-
-
-
-url = megabus.format('New York, ny', 'Boston, MA', crawling_date)
 
 # Displays a summary of the trip that is being searched
 #2megabus.params_message(html)
 
-daysSpan = 5
+daysSpan = 7
+
 # collect data
 for number in range(0,daysSpan):
     if crawling_date == -1:
         break
-
-    outbound = megabus.start_trips(url, 'outbound', crawling_day, m_prices, t_prices,w_prices,th_prices,f_prices,s_prices,
-                               su_prices, im_prices, it_prices,iw_prices,ith_prices,if_prices,is_prices,isu_prices)
-
-    inbound =  megabus.start_trips(url,'inbound', crawling_day, m_prices, t_prices,w_prices,th_prices,f_prices,s_prices,
-                               su_prices, im_prices, it_prices,iw_prices,ith_prices,if_prices,is_prices,isu_prices)
-
+    print('looping')
+    outbound = megabus_record.record_trips(url, 'outbound', crawling_day, week_days)
+    inbound = megabus_record.record_trips(url,'inbound', crawling_day, week_days)
     crawling.increment_day()
     crawling_day = crawling.day_of_the_week()
 
-# compare data
+# Resets dates to compare data
 crawling = megabus_date.Date()
 crawling_day = crawling.day_of_the_week()
 
-
 for number in range(0,daysSpan):
-    megabus.compare_trip_prices(url, 'outbound', crawling_day, m_prices, t_prices,w_prices,th_prices,f_prices,s_prices,
-                                   su_prices, im_prices, it_prices,iw_prices,ith_prices,if_prices,is_prices,isu_prices)
-
-    megabus.compare_trip_prices(url,'inbound', crawling_day, m_prices, t_prices,w_prices,th_prices,f_prices,s_prices,
-                                   su_prices, im_prices, it_prices,iw_prices,ith_prices,if_prices,is_prices,isu_prices)
-
+    if crawling_date == -1:
+        break
+    print('looping')
+    outbound = megabus_analyze.compare_trip_prices(url, 'outbound', crawling_day, week_days)
+    inbound = megabus_analyze.compare_trip_prices(url,'inbound', crawling_day, week_days)
     crawling.increment_day()
     crawling_day = crawling.day_of_the_week()
 
 
 
+print(week_days)
+
+
+# Display
+# Request information
+# Records information
+# Rads information
+# Analyze information
